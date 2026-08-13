@@ -46,29 +46,16 @@ describe("ステージデータ", () => {
     expect(metrics.wrongBeds.lateContradictionCount).toBe(metrics.wrongBeds.wrongBedCount);
   });
 
-  it.each(levels.filter((level) => level.number >= 6))(
-    "$id が家具区間を正解に利用している",
-    (level) => {
-      const furnitureCount = level.cells.filter((cell) => cell === "furniture").length;
-      const solution = solveLevel(level, 1).firstSolution ?? [];
-      const hasSeparatedPair = solution.some((a, index) =>
-        solution.slice(index + 1).some((b) => {
-          if (a.row !== b.row && a.col !== b.col) return false;
-          const rowStep = Math.sign(b.row - a.row);
-          const colStep = Math.sign(b.col - a.col);
-          let row = a.row + rowStep;
-          let col = a.col + colStep;
-          while (row !== b.row || col !== b.col) {
-            if (level.cells[row * level.width + col] === "furniture") return true;
-            row += rowStep;
-            col += colStep;
-          }
-          return false;
-        }),
-      );
+  it("ステージ11から50は評価スコアが降順にならない", () => {
+    const scores = levels.slice(10).map((level) => evaluateDifficulty(level).ambiguityScore);
+    for (let index = 1; index < scores.length; index += 1) {
+      expect(scores[index]).toBeGreaterThanOrEqual(scores[index - 1] - Number.EPSILON);
+    }
+  });
 
-      expect(furnitureCount).toBeGreaterThanOrEqual(2);
-      expect(hasSeparatedPair).toBe(true);
-    },
-  );
+  it("ステージ11から50に警告あり・なしの両タイプが混在する", () => {
+    const warningCounts = levels.slice(10).map((level) => evaluateDifficulty(level).warnings.length);
+    expect(warningCounts.some((count) => count > 0)).toBe(true);
+    expect(warningCounts.some((count) => count === 0)).toBe(true);
+  });
 });

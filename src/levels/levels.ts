@@ -35,7 +35,7 @@ function defineLevel(
   };
 }
 
-export const levels: Level[] = [
+const legacyLevels: Level[] = [
   defineLevel(1, 1, "N0", "はじめてのお昼寝", "光っている寝床をタップして、猫を寝かせよう", ["F.", ".B"], "tutorial"),
   defineLevel(2, 2, "N0", "視線が気になる", "猫同士は、上下左右に見つめ合うと眠れません", ["B.B", "B.."], "tutorial"),
   defineLevel(3, 2, "N0", "ちいさな目隠し", "家具が間にあれば、安心して眠れます", ["BFB", "..."], "tutorial"),
@@ -87,3 +87,65 @@ export const levels: Level[] = [
   defineLevel(49, 10, "N6", "夜明け前の試験", "これまでの推理をすべて使って、十匹を寝かせよう", [".FBFB....F", ".F.F...F..", "FB..FB..BF", "F.B.B....B", ".F.......F", "FB....BF.F", "...BB...F.", ".BFB.BBF..", "F...B.B..F"]),
   defineLevel(50, 11, "N6", "Perfect Nap", "猫たちに最高のお昼寝をプレゼントしよう", ["FF.....F.F", "F..F.BF..F", ".BB..FBB..", "F.B.F.BF..", "....BB.B..", "BF..BBB.B.", "....FB.BF.", ".FBBF.F...", "...F.F.B.F", "..F.F....."], "finale"),
 ];
+
+type Replacement = readonly [number, number, number, string];
+
+const replacements: Replacement[] = [
+  [11, 5, 8, "FFB.F./BBB.BB/B.BFB./BBBBBB/.FBF.F/F..F.F"],
+  [12, 5, 12, ".F...F/BFBB.F/B.BBBB/B.BBBB/.FB.F./BF.B.F"],
+  [13, 5, 12, "FBB.BB/FFB.BB/.F..BB/.FFFBB/.BB.BB/..FFBB"],
+  [14, 6, 6, ".BBBB.F/F..BFFF/..BBF.F/B.BBF../BBBB.../.BBBBFF/B..BF.F"],
+  [15, 5, 8, ".FB..F/F.BBBB/F.BB.F/.BBBB./.FB..F/FBBBBF"],
+  [16, 5, 8, ".BBBBF/.BBBB./F.FBBF/FBBB.B/.FF.B./.F..B."],
+  [17, 5, 10, "F..BFB/F.FB.B/B.BB.B/.FBBBB/BFFB.B/FFFBFF"],
+  [18, 5, 12, "BB.BBB/FFF.B./F.FB.B/F.F.BB/BB.BBB/FFF.FB"],
+  [19, 5, 12, ".FBB.F/FF.B../FBBBB./.BBBBF/FFFBFF/.BBB.B"],
+  [21, 5, 12, "BFF..B/BBB.BB/BBBB.B/F...BB/F.FFFB/..FF.B"],
+  [22, 5, 12, "..B..F/BBB.BF/BBB.BB/BFBFBF/BFBFB./F.F.F."],
+  [23, 5, 12, "BF.B.B/B.F.FB/BBBBBB/BB.BBF/BFF.FF/..F..."],
+  [24, 5, 12, ".F.BBF/BB.BB./BFFBB./BBBBBB/B..F.F/.F..F."],
+  [25, 5, 8, "BBBB.B/BBBF../.BBBBF/FBB..F/.B.F.F/FBFFFF"],
+  [26, 5, 12, "BBBBBB/...BBB/...BBF/FBFBB./FF..B./.FF.BF"],
+  [27, 6, 12, "FBF.FFF/BBB.B../FBBB..B/.B....B/..BB..B/BBBBBF./FBFFFFF"],
+  [28, 5, 12, "F...F./BB.BBF/BFFBBF/.F.BB./BBBBBB/FFFBFF"],
+  [29, 5, 12, "B.FFFF/BBB.BB/BBB..B/B....F/BFB..B/B.B.FF"],
+  [30, 5, 8, ".BF.F./FBBBBB/FB.BBF/F.F.BF/.BF.BF/.BBBB."],
+  [31, 5, 12, "FBBBBB/BF.BB./B.BBBF/BFFBBF/BF.F.F/...F.F"],
+  [32, 5, 12, "B.BB../.FB.F./B.BB../BBBBBB/FFBFFB/.FB..F"],
+  [33, 5, 12, "FFFF../BBB.BB/BB.BFF/BBFB../BBBB../.FFBFF"],
+  [34, 5, 10, "BBBB.F/BFBB../BF..../BBBB.B/B.B.F./FFBFF."],
+  [35, 5, 9, ".F.BFB/FBBBBB/BBB..B/.B.B.B/..FFFB/FF.FFB"],
+  [36, 5, 12, "B..FB./BBBBBF/BB.BBB/BB...F/BF.F.F/.FF.B."],
+  [37, 5, 12, "B...../BFF.FB/BFB.BB/BBB.BB/BF..BB/FFF.B."],
+  [38, 5, 12, "BBBB.B/B.BF.F/F.BF../F.B.F./FBB..F/BBBB.B"],
+  [39, 5, 12, "FF.F../F.F.BB/B.FBBB/BBBBBB/BF.FFB/BF...B"],
+  [40, 5, 12, "BBBBBB/BBBFBF/BB..BF/F.B.B./F.FFBF/F..FB."],
+  [41, 5, 12, "BBBBBB/FF.B../F.BB../.FFBBF/.FFB../FB.BBB"],
+  [42, 5, 8, ".BFB.F/BB.BF./BBBB.F/...FFF/.BFF.F/BBBBBB"],
+  [43, 5, 12, "FBBB../BBBBBB/F.BB.F/.F.BFF/..BBBB/..FBFF"],
+  [44, 5, 12, "FFFBF./F.FB.F/BBBBBB/FB.BFF/.FBBFF/.BBBB."],
+  [45, 5, 12, "FB.BFF/BBBBBB/FBBBF./BBB.BF/.F.BF./.F.BF."],
+  [46, 5, 12, "FFB.BF/FFBBB./B.BBBB/FFB.F./BB.BBF/.FB.FF"],
+  [47, 5, 12, "FBFBF./BBBBFF/FBF.FF/BBBBBF/.BBB../FBFFF."],
+  [48, 5, 12, "FB.BB./FF..BF/BBBBBB/FFBBBF/.FBFBF/.FBFF."],
+  [49, 5, 12, "FFFF.F/BBBBBB/BF.FFB/B..BBB/BFFFBB/BF.F.F"],
+  [50, 5, 12, "FFF.BF/FFF.B./BBBFBF/F.BFB./BBBBBB/.BB.BF"],
+];
+
+const replacementByNumber = new Map(replacements.map((replacement) => [replacement[0], replacement]));
+
+export const levels: Level[] = legacyLevels.map((level) => {
+  const replacement = replacementByNumber.get(level.number);
+  if (!replacement) return level;
+  const [, catCount, solutionCount, encodedRows] = replacement;
+  const rows = encodedRows.split("/");
+  return {
+    ...level,
+    width: rows[0].length,
+    height: rows.length,
+    catCount,
+    cells: map(rows),
+    solutionPolicy: { min: solutionCount, max: solutionCount },
+    pacing: "standard",
+  };
+});
