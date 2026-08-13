@@ -18,6 +18,8 @@ console.table(results.map((result) => ({
   rowProfiles: result.oneMoveBefore.rowProfileCount,
   sameProfile: result.oneMoveBefore.maxPlacementsPerJointProfile,
   lateWrongBeds: `${result.wrongBeds.lateContradictionCount}/${result.wrongBeds.wrongBedCount}`,
+  deadEnds: `${result.uniqueSolution.oneMoveBeforeDeadEndCount}/${result.uniqueSolution.twoMovesBeforeDeadEndCount}`,
+  peeling: result.uniqueSolution.peelingRoundSizes.join("→"),
   score: result.ambiguityScore.toFixed(2),
   warnings: result.warnings.join(" / "),
 })));

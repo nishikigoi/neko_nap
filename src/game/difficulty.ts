@@ -23,6 +23,13 @@ export interface WrongBedMetrics {
   maximumReachableCatsByBed: Record<string, number>;
 }
 
+export interface UniqueSolutionMetrics {
+  oneMoveBeforeDeadEndCount: number;
+  twoMovesBeforeDeadEndCount: number;
+  peelingRounds: number;
+  peelingRoundSizes: number[];
+}
+
 export interface DifficultyMetrics {
   levelId: string;
   bedCount: number;
@@ -43,6 +50,7 @@ export interface DifficultyMetrics {
   oneMoveBefore: PartialPlacementMetrics;
   twoMovesBefore: PartialPlacementMetrics;
   wrongBeds: WrongBedMetrics;
+  uniqueSolution: UniqueSolutionMetrics;
   ambiguityScore: number;
   warnings: string[];
 }
@@ -185,6 +193,66 @@ function allocationCount(capacities: number[], total: number) {
   return counts[total];
 }
 
+function lineSegmentIds(level: Level, axis: "row" | "col") {
+  const ids = Array<number>(level.cells.length).fill(-1);
+  const lineCount = axis === "row" ? level.height : level.width;
+  const lineLength = axis === "row" ? level.width : level.height;
+  let nextId = 0;
+  for (let line = 0; line < lineCount; line += 1) {
+    let id = nextId++;
+    for (let offset = 0; offset < lineLength; offset += 1) {
+      const row = axis === "row" ? line : offset;
+      const col = axis === "row" ? offset : line;
+      const index = row * level.width + col;
+      if (blocksSight(level.cells[index], axis)) id = nextId++;
+      else ids[index] = id;
+    }
+  }
+  return ids;
+}
+
+function summarizeUniqueSolution(level: Level, solution: Position[], oneMoveBefore: PartialPlacementMetrics, twoMovesBefore: PartialPlacementMetrics): UniqueSolutionMetrics {
+  if (solution.length !== level.catCount) {
+    return { oneMoveBeforeDeadEndCount: 0, twoMovesBeforeDeadEndCount: 0, peelingRounds: 0, peelingRoundSizes: [] };
+  }
+  const rowSegments = lineSegmentIds(level, "row");
+  const columnSegments = lineSegmentIds(level, "col");
+  const edges = allBeds(level).map((bed) => ({
+    key: positionKey(bed),
+    row: rowSegments[bed.row * level.width + bed.col],
+    column: columnSegments[bed.row * level.width + bed.col],
+  }));
+  const solutionKeys = new Set(solution.map(positionKey));
+  const remaining = new Set(edges.map((edge) => edge.key));
+  const peelingRoundSizes: number[] = [];
+
+  while (remaining.size > 0) {
+    const active = edges.filter((edge) => remaining.has(edge.key));
+    const rowDegrees = new Map<number, number>();
+    const columnDegrees = new Map<number, number>();
+    for (const edge of active) {
+      rowDegrees.set(edge.row, (rowDegrees.get(edge.row) ?? 0) + 1);
+      columnDegrees.set(edge.column, (columnDegrees.get(edge.column) ?? 0) + 1);
+    }
+    const forced = active.filter((edge) => solutionKeys.has(edge.key) &&
+      (rowDegrees.get(edge.row) === 1 || columnDegrees.get(edge.column) === 1));
+    if (forced.length === 0) break;
+    peelingRoundSizes.push(forced.length);
+    const usedRows = new Set(forced.map((edge) => edge.row));
+    const usedColumns = new Set(forced.map((edge) => edge.column));
+    for (const edge of active) {
+      if (usedRows.has(edge.row) || usedColumns.has(edge.column)) remaining.delete(edge.key);
+    }
+  }
+
+  return {
+    oneMoveBeforeDeadEndCount: Math.max(0, oneMoveBefore.placementCount - level.catCount),
+    twoMovesBeforeDeadEndCount: Math.max(0, twoMovesBefore.placementCount - level.catCount * (level.catCount - 1) / 2),
+    peelingRounds: peelingRoundSizes.length,
+    peelingRoundSizes,
+  };
+}
+
 export function evaluateDifficulty(level: Level): DifficultyMetrics {
   const solutionPolicy = level.solutionPolicy ?? { min: 1, max: 1 };
   const solutions = enumerateSolutions(level, solutionPolicy.max + 1);
@@ -201,6 +269,7 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
   const lateContradictionCount = deficits.filter((deficit) => deficit === 1).length;
   const oneMoveBefore = summarizePlacements(level, level.catCount - 1);
   const twoMovesBefore = summarizePlacements(level, level.catCount - 2);
+  const uniqueSolution = summarizeUniqueSolution(level, solutions.length === 1 ? solution : [], oneMoveBefore, twoMovesBefore);
   const solutionUsesSeparatedPair = solution.some((a, index) =>
     solution.slice(index + 1).some((b) => hasFurnitureBetween(level, a, b)),
   );
@@ -263,6 +332,7 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
         : 0,
       maximumReachableCatsByBed,
     },
+    uniqueSolution,
     ambiguityScore,
     warnings,
   };

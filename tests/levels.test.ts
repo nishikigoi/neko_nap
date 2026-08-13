@@ -49,11 +49,32 @@ describe("ステージデータ", () => {
   });
 
   it("ステージ11から50は評価スコアが降順にならない", () => {
-    const scores = levels.filter((level) => level.number >= 11 && level.number !== 20)
+    const scores = levels.filter((level) => level.number >= 11 && level.number !== 20 && level.number !== 50)
       .map((level) => evaluateDifficulty(level).ambiguityScore);
     for (let index = 1; index < scores.length; index += 1) {
       expect(scores[index]).toBeGreaterThanOrEqual(scores[index - 1] - Number.EPSILON);
     }
+  });
+
+  it("ステージ50は方向別土管を使う一意解の長期連鎖問題である", () => {
+    const level = levels[49];
+    const metrics = evaluateDifficulty(level);
+    const cells = new Set(level.cells);
+
+    expect(level.solutionPolicy).toEqual({ min: 1, max: 1 });
+    expect(level.pacing).toBe("finale");
+    expect(metrics.solutionCount).toBe(1);
+    expect(cells.has("furniture")).toBe(true);
+    expect(cells.has("vertical-barrier")).toBe(true);
+    expect(cells.has("horizontal-barrier")).toBe(true);
+    expect(metrics.uniqueSolution.peelingRounds).toBeGreaterThanOrEqual(6);
+    expect(metrics.uniqueSolution.peelingRoundSizes[0]).toBeLessThanOrEqual(2);
+    expect(metrics.uniqueSolution.oneMoveBeforeDeadEndCount).toBeGreaterThanOrEqual(700);
+    expect(metrics.uniqueSolution.twoMovesBeforeDeadEndCount).toBeGreaterThanOrEqual(11_000);
+    expect(metrics.wrongBeds.lateContradictionCount).toBeGreaterThanOrEqual(28);
+    expect(metrics.wrongBeds.lateContradictionRatio).toBe(1);
+    expect(metrics.oneMoveBefore.truncated).toBe(false);
+    expect(metrics.twoMovesBefore.truncated).toBe(false);
   });
 
   it("ステージ11から50に警告あり・なしの両タイプが混在する", () => {

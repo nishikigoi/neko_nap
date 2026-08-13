@@ -131,7 +131,7 @@ const replacements: Replacement[] = [
   [47, 5, 12, "FBFBF./BBBBFF/FBF.FF/BBBBBF/.BBB../FBFFF."],
   [48, 5, 12, "FB.BB./FF..BF/BBBBBB/FFBBBF/.FBFBF/.FBFF."],
   [49, 5, 12, "FFFF.F/BBBBBB/BF.FFB/B..BBB/BFFFBB/BF.F.F"],
-  [50, 6, 24, "BF.FFBF/BFFFF../.BBBBBB/B..F.../.F..BBB/.F..BB./BBBBB.B"],
+  [50, 11, 1, "...VBBB...B/..BBBB.BB../.B.....B.BB/B.B.BB.B.V./.B.B...B.../B...BBB..BV/...B.....B./.B.B.....B./.FH.....FB./HF....B..BB/..H.B.B...B"],
 ];
 
 const replacementByNumber = new Map(replacements.map((replacement) => [replacement[0], replacement]));
@@ -148,6 +148,6 @@ export const levels: Level[] = legacyLevels.map((level) => {
     catCount,
     cells: map(rows),
     solutionPolicy: { min: solutionCount, max: solutionCount },
-    pacing: "standard",
+    pacing: level.number === 50 ? "finale" : "standard",
   };
 });
