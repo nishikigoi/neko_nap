@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { evaluateDifficulty } from "../src/game/difficulty";
 import { enumerateSolutions, solveLevel } from "../src/game/solver";
 import { validateLevel } from "../src/game/validation";
 import { levels } from "../src/levels/levels";
@@ -30,6 +31,19 @@ describe("ステージデータ", () => {
     expect(solutions).toHaveLength(4);
     expect(profiles("row", level.height).size).toBe(2);
     expect(profiles("col", level.width).size).toBe(2);
+  });
+
+  it("ステージ20は配分候補と完成直前の罠を十分に持つ", () => {
+    const metrics = evaluateDifficulty(levels[19]);
+
+    expect(metrics.solutionCount).toBe(6);
+    expect(metrics.solutionColumnProfileCount).toBeGreaterThanOrEqual(2);
+    expect(metrics.solutionRowProfileCount).toBeGreaterThanOrEqual(3);
+    expect(metrics.oneMoveBefore.placementCount).toBeGreaterThanOrEqual(50);
+    expect(metrics.oneMoveBefore.columnProfileCount).toBeGreaterThanOrEqual(8);
+    expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(8);
+    expect(metrics.wrongBeds.wrongBedCount).toBeGreaterThanOrEqual(8);
+    expect(metrics.wrongBeds.lateContradictionCount).toBe(metrics.wrongBeds.wrongBedCount);
   });
 
   it.each(levels.filter((level) => level.number >= 6))(
