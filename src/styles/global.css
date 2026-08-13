@@ -28,7 +28,8 @@ button:focus-visible { outline: 3px solid #537c68; outline-offset: 3px; }
 
 .play-area { display: flex; flex-direction: column; align-items: center; padding: 18px 16px 32px; }
 .instruction { min-height: 44px; max-width: 470px; margin: 0 0 16px; color: #73665e; text-align: center; font-size: .95rem; line-height: 1.6; }
-.board { --gap: clamp(5px, 1.5vw, 9px); display: grid; grid-template-columns: repeat(var(--board-cols), 1fr); grid-template-rows: repeat(var(--board-rows), 1fr); gap: var(--gap); width: min(88vw, 500px); aspect-ratio: var(--board-cols) / var(--board-rows); padding: clamp(10px, 3vw, 20px); border: 8px solid #cda983; border-radius: 24px; background: #dbc09d; box-shadow: var(--shadow), inset 0 0 0 3px rgb(255 255 255 / 24%); }
+.board-scroll { width: 100%; overflow-x: auto; padding: 8px max(0px, calc((100% - 560px) / 2)) 14px; scrollbar-width: thin; }
+.board { --gap: clamp(4px, 1.2vw, 9px); display: grid; grid-template-columns: repeat(var(--board-cols), 1fr); grid-template-rows: repeat(var(--board-rows), 1fr); gap: var(--gap); width: min(max(88vw, calc(var(--board-cols) * 44px)), 560px); margin: 0 auto; aspect-ratio: var(--board-cols) / var(--board-rows); padding: clamp(9px, 2.5vw, 20px); border: 8px solid #cda983; border-radius: 24px; background: #dbc09d; box-shadow: var(--shadow), inset 0 0 0 3px rgb(255 255 255 / 24%); }
 .cell { position: relative; display: grid; place-items: center; min-width: 0; min-height: 0; overflow: visible; border: 0; border-radius: 13px; background: #f5e7cf; }
 button.cell { padding: 0; color: inherit; cursor: pointer; transition: transform .15s, filter .15s, background .15s; }
 button.cell:hover { transform: translateY(-2px); }
@@ -85,7 +86,10 @@ button.cell:active { transform: scale(.96); }
 .level-card:disabled { opacity: .48; cursor: default; }
 .level-card--complete { background: #f0f7ee; border-color: #cadaCB; }
 .level-card__number { display: grid; place-items: center; width: 34px; aspect-ratio: 1; border-radius: 50%; background: #f2c2a5; font-weight: 800; }
-.level-card__name { font-size: .78rem; line-height: 1.3; }.level-card__state { color: #78917b; text-align: center; font-weight: 800; }
+.level-card__copy { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.level-card__name { overflow: hidden; font-size: .78rem; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.level-card__difficulty { color: var(--muted); font-size: .64rem; font-weight: 700; }
+.level-card__state { color: #78917b; text-align: center; font-weight: 800; }
 .text-button { margin-top: 18px; padding: 8px; border: 0; background: transparent; color: #807069; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 
 .completion { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 22px; background: rgb(64 50 42 / 35%); backdrop-filter: blur(4px); animation: fadeIn .3s; }
@@ -110,7 +114,7 @@ button.cell:active { transform: scale(.96); }
   .game-header { min-height: 78px; padding-top: 10px; padding-bottom: 8px; }
   .play-area { padding-top: 10px; }
   .instruction { min-height: 34px; margin-bottom: 8px; }
-  .board { width: min(72vh, 88vw, 460px); }
+  .board { width: min(max(72vh, calc(var(--board-cols) * 42px)), 520px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

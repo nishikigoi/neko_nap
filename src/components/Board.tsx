@@ -29,12 +29,13 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
   const beds = new Set(allBeds(level).map(positionKey));
 
   return (
-    <div
-      className="board"
-      style={{ "--board-cols": level.width, "--board-rows": level.height } as React.CSSProperties}
-      role="grid"
-      aria-label={`ステージ${level.number}の盤面`}
-    >
+    <div className="board-scroll">
+      <div
+        className="board"
+        style={{ "--board-cols": level.width, "--board-rows": level.height } as React.CSSProperties}
+        role="grid"
+        aria-label={`ステージ${level.number}の盤面`}
+      >
       {level.cells.map((kind, index) => {
         const position = { row: Math.floor(index / level.width), col: index % level.width };
         const key = positionKey(position);
@@ -74,7 +75,8 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
             )}
           </div>
         );
-      })}
+        })}
+      </div>
     </div>
   );
 }

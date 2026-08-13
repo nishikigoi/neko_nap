@@ -127,7 +127,7 @@ export default function App() {
       <header className="game-header">
         <button className="icon-button" aria-label="ステージ選択へ戻る" onClick={() => setScreen("select")}>‹</button>
         <div>
-          <span className="stage-label">STAGE {level.number}</span>
+          <span className="stage-label">STAGE {level.number} · {level.difficulty}</span>
           <h1>{level.title}</h1>
         </div>
         <span className="cat-counter" aria-label={`${level.catCount}匹寝かせる`}><b>{catsFromMarks(level, game.marks).length}</b> / {level.catCount}</span>
