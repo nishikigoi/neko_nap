@@ -23,10 +23,13 @@ npm run dev
 ```bash
 npm test
 npm run validate-levels
+npm run analyze-levels
 npm run build
 ```
 
 `npm test` は視線判定、ゲーム状態、ソルバー、全ステージの一意解を検証します。
+
+`npm run analyze-levels` は、完成直前に残る行・列配分、同じ配分に残る配置、誤った寝床で矛盾が判明するタイミングを一覧表示します。このレポートは、人間にとっての難しさを評価して盤面を再設計するために使います。
 
 ## プレイテストデータ
 
