@@ -23,7 +23,7 @@ for (let mask = 0; mask < 3 ** furnitureIndices.length; mask += 1) {
   if (!kinds.every((kind) => cells.includes(kind))) continue;
   const count = solveLevel({ ...source, cells, solutionPolicy: undefined }, 31).solutionCount;
   solutionCounts.set(count, (solutionCounts.get(count) ?? 0) + 1);
-  if (count !== 2) continue;
+  if (count !== 1) continue;
   const candidate = { ...source, cells, solutionPolicy: { min: count, max: count } };
   const metrics = evaluateDifficulty(candidate);
   if (!best || metrics.ambiguityScore > best.ambiguityScore) {

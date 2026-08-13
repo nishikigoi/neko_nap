@@ -69,9 +69,9 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
         }
 
         const barrierLabel = kind === "vertical-barrier"
-          ? "縦方向の視線を遮る家具"
+          ? "縦方向に視線を通す土管"
           : kind === "horizontal-barrier"
-            ? "横方向の視線を遮る家具"
+            ? "横方向に視線を通す土管"
             : kind === "furniture" ? "縦横の視線を遮る家具" : "床";
         return (
           <div className={classes} key={key} role="gridcell" aria-label={barrierLabel}>

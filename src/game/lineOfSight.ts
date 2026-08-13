@@ -3,8 +3,8 @@ import type { Level, Position } from "./types";
 
 export function blocksSight(kind: Level["cells"][number], axis: "row" | "col") {
   if (kind === "furniture") return true;
-  if (axis === "row") return kind === "horizontal-barrier";
-  return kind === "vertical-barrier";
+  if (axis === "row") return kind === "vertical-barrier";
+  return kind === "horizontal-barrier";
 }
 
 export function conflicts(level: Level, a: Position, b: Position): boolean {

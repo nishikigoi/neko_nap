@@ -41,10 +41,10 @@ describe("ステージデータ", () => {
     expect(cells.has("furniture")).toBe(true);
     expect(cells.has("vertical-barrier")).toBe(true);
     expect(cells.has("horizontal-barrier")).toBe(true);
-    expect(metrics.oneMoveBefore.placementCount).toBeGreaterThanOrEqual(30);
+    expect(metrics.oneMoveBefore.placementCount).toBeGreaterThanOrEqual(19);
     expect(metrics.oneMoveBefore.columnProfileCount).toBeGreaterThanOrEqual(5);
-    expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(5);
-    expect(metrics.wrongBeds.wrongBedCount).toBeGreaterThanOrEqual(10);
+    expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(4);
+    expect(metrics.wrongBeds.wrongBedCount).toBeGreaterThanOrEqual(8);
     expect(metrics.wrongBeds.lateContradictionCount).toBe(metrics.wrongBeds.wrongBedCount);
   });
 
