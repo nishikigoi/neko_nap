@@ -16,6 +16,8 @@ export interface Level {
   title: string;
   instruction?: string;
   initialCats?: Position[];
+  difficulty: "N0" | "N1" | "N2" | "N3" | "N4" | "N5" | "N6";
+  pacing?: "tutorial" | "standard" | "breather" | "peak" | "finale";
 }
 
 export type Marks = Record<string, BedMark>;

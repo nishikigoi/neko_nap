@@ -18,7 +18,12 @@ export default function App() {
   const [levelIndex, setLevelIndex] = useState(0);
   const level = levels[levelIndex];
   const [game, setGame] = useState<GameState>(() => createGameState(levels[0]));
-  const [save, setSave] = useState<SaveData>(() => typeof localStorage === "undefined" ? defaultSave() : loadSave());
+  const [save, setSave] = useState<SaveData>(() => {
+    if (typeof localStorage === "undefined") return defaultSave();
+    const loaded = loadSave();
+    const nextAfterCompleted = Math.max(1, ...loaded.completedLevels.map((number) => number + 1));
+    return { ...loaded, unlockedLevel: Math.min(levels.length, Math.max(loaded.unlockedLevel, nextAfterCompleted)) };
+  });
   const [hintKey, setHintKey] = useState<string>();
   const [message, setMessage] = useState<string>();
   const complete = useMemo(() => isComplete(level, game.marks), [level, game.marks]);

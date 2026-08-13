@@ -3,7 +3,7 @@ import { createGameState, cycleBed, isComplete, undo } from "../src/game/state";
 import type { Level } from "../src/game/types";
 
 const level: Level = {
-  id: "state-test", number: 0, width: 2, height: 2, catCount: 2, title: "test",
+  id: "state-test", number: 0, width: 2, height: 2, catCount: 2, difficulty: "N0", title: "test",
   cells: ["bed", "floor", "floor", "bed"],
 };
 

@@ -3,7 +3,7 @@ import { solveLevel } from "../src/game/solver";
 import type { Level } from "../src/game/types";
 
 const make = (cells: Level["cells"], catCount: number): Level => ({
-  id: "solver-test", number: 0, width: cells.length, height: 1, catCount, title: "test", cells,
+  id: "solver-test", number: 0, width: cells.length, height: 1, catCount, difficulty: "N0", title: "test", cells,
 });
 
 describe("ソルバー", () => {

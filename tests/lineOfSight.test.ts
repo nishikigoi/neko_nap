@@ -8,6 +8,7 @@ const level = (rows: string[]): Level => ({
   width: rows[0].length,
   height: rows.length,
   catCount: 2,
+  difficulty: "N0",
   title: "test",
   cells: rows.join("").split("").map((cell): CellKind => cell === "F" ? "furniture" : cell === "B" ? "bed" : "floor"),
 });
