@@ -5,7 +5,7 @@ import Controls from "../components/Controls";
 import LevelSelect from "../components/LevelSelect";
 import { allBeds, positionKey } from "../game/board";
 import { conflictPairs } from "../game/lineOfSight";
-import { solveLevel } from "../game/solver";
+import { canCompleteLevel, solveLevel } from "../game/solver";
 import { catsFromMarks, createGameState, cycleBed, isComplete, undo } from "../game/state";
 import type { GameState } from "../game/types";
 import { levels } from "../levels/levels";
@@ -95,15 +95,26 @@ export default function App() {
   };
 
   const handleHint = () => {
-    const solution = solveLevel(level, 1).firstSolution ?? [];
-    const solutionKeys = new Set(solution.map(positionKey));
-    const wrongCat = allBeds(level).find((bed) => game.marks[positionKey(bed)] === "cat" && !solutionKeys.has(positionKey(bed)));
-    const missingCat = solution.find((bed) => game.marks[positionKey(bed)] !== "cat");
+    const currentCats = catsFromMarks(level, game.marks);
+    const currentCanComplete = canCompleteLevel(level, currentCats);
+    const wrongCat = currentCanComplete
+      ? undefined
+      : currentCats.find((cat) => canCompleteLevel(level, currentCats.filter((other) => positionKey(other) !== positionKey(cat))));
+    const continuation = solveLevel(
+      level,
+      1,
+      wrongCat ? currentCats.filter((cat) => positionKey(cat) !== positionKey(wrongCat)) : currentCats,
+    ).firstSolution ?? [];
+    const missingCat = continuation.find((bed) => game.marks[positionKey(bed)] !== "cat");
     const target = wrongCat ?? missingCat;
     if (!target) return;
     const key = positionKey(target);
     setHintKey(key);
-    setMessage(wrongCat ? "この寝床を選ぶと、残りの猫を全員寝かせられません。" : "この寝床から考えると、みんなの場所が見つかりそうです。");
+    setMessage(wrongCat
+      ? "この寝床を選ぶと、残りの猫を全員寝かせられません。"
+      : level.solutionPolicy
+        ? "眠り方はひとつではありません。この寝床から続けられます。"
+        : "この寝床から考えると、みんなの場所が見つかりそうです。");
     setGame((current) => ({ ...current, hintCount: current.hintCount + 1 }));
   };
 

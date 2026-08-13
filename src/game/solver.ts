@@ -2,21 +2,23 @@ import { allBeds } from "./board";
 import { conflicts } from "./lineOfSight";
 import type { Level, Position, SolveResult } from "./types";
 
-export function solveLevel(level: Level, limit = 2): SolveResult {
+export function enumerateSolutions(level: Level, limit = 2, requiredCats: Position[] = []): Position[][] {
   const beds = allBeds(level);
-  const initial = level.initialCats ?? [];
+  const initial = [...(level.initialCats ?? []), ...requiredCats];
+  const initialKeys = new Set(initial.map((cat) => `${cat.row},${cat.col}`));
+  if (initialKeys.size !== initial.length || initial.some((cat) => !beds.some((bed) => bed.row === cat.row && bed.col === cat.col))) {
+    return [];
+  }
   const selectable = beds.filter(
     (bed) => !initial.some((cat) => cat.row === bed.row && cat.col === bed.col),
   );
-  let count = 0;
-  let firstSolution: Position[] | undefined;
+  const solutions: Position[][] = [];
 
   function search(index: number, chosen: Position[]) {
-    if (count >= limit) return;
+    if (solutions.length >= limit) return;
     const allChosen = [...initial, ...chosen];
     if (allChosen.length === level.catCount) {
-      count += 1;
-      firstSolution ??= allChosen;
+      solutions.push(allChosen);
       return;
     }
     if (index >= selectable.length) return;
@@ -30,8 +32,17 @@ export function solveLevel(level: Level, limit = 2): SolveResult {
   }
 
   if (initial.some((cat, index) => initial.slice(index + 1).some((b) => conflicts(level, cat, b)))) {
-    return { solutionCount: 0 };
+    return [];
   }
   search(0, []);
-  return { solutionCount: count, firstSolution };
+  return solutions;
+}
+
+export function solveLevel(level: Level, limit = 2, requiredCats: Position[] = []): SolveResult {
+  const solutions = enumerateSolutions(level, limit, requiredCats);
+  return { solutionCount: solutions.length, firstSolution: solutions[0] };
+}
+
+export function canCompleteLevel(level: Level, requiredCats: Position[]) {
+  return solveLevel(level, 1, requiredCats).solutionCount === 1;
 }

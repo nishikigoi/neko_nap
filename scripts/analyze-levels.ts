@@ -8,6 +8,8 @@ console.table(results.map((result) => ({
   beds: result.bedCount,
   cats: result.catCount,
   furniture: result.furnitureCount,
+  solutionColumnProfiles: result.solutionColumnProfileCount,
+  solutionRowProfiles: result.solutionRowProfileCount,
   columnSlack: result.axisCapacity.columnCapacitySlack,
   columnAllocations: result.axisCapacity.columnAllocationCount,
   rowSlack: result.axisCapacity.rowCapacitySlack,

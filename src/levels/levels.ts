@@ -18,6 +18,7 @@ function defineLevel(
   instruction: string,
   rows: string[],
   pacing: Pacing = "standard",
+  solutionPolicy?: Level["solutionPolicy"],
 ): Level {
   return {
     id: `level-${String(number).padStart(2, "0")}`,
@@ -27,6 +28,7 @@ function defineLevel(
     catCount,
     difficulty,
     pacing,
+    solutionPolicy,
     title,
     instruction,
     cells: map(rows),
@@ -43,7 +45,7 @@ export const levels: Level[] = [
   defineLevel(7, 3, "N2", "すやすやリレー", "ひとつ決まると、次の寝床も見えてきます", [".F..", ".BFB", "BB.B", "...."]),
   defineLevel(8, 4, "N2", "ふたつの小部屋", "行と列ではなく、家具で分かれた区間を見よう", ["BBFB", ".FF.", "B..B", "BB.B"]),
   defineLevel(9, 4, "N3", "夜風の通り道", "ここに置いたあと、残りのみんなも眠れるかな？", ["B..B.", "BFFBB", "...F.", "B..BB"]),
-  defineLevel(10, 6, "N3", "視線の迷路", "家具で分かれた場所を、ひとつずつ結びつけよう", [".FB.B.", ".F.F.B", "F.FBBB", "F.BBF.", "..B..B", ".FBBBB"], "peak"),
+  defineLevel(10, 4, "N3", "ふたつの眠り方", "列ごとの猫の数はひとつとは限りません", ["BBB.B", "BFBFF", "BBB.F", ".....", "..B.F"], "peak", { min: 4, max: 4 }),
   defineLevel(11, 4, "N2", "雨音のひとやすみ", "短い区間から、眠れる場所を見つけよう", [".BB.B", ".....", "..F.B", ".B..F", "..BF."], "breather"),
   defineLevel(12, 5, "N3", "クッションの小道", "ひとつの仮定から、足りなくなる場所を探そう", ["BB.BB", "B..BF", "....F", "BBFBF", "BB.BB"]),
   defineLevel(13, 4, "N3", "背の高い観葉植物", "猫の数は行や列の数と同じとは限りません", ["F....", "BF..B", "F....", "F..BB", "B..BB"]),

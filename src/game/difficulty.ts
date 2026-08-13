@@ -1,6 +1,6 @@
 import { allBeds, positionKey } from "./board";
 import { conflicts } from "./lineOfSight";
-import { solveLevel } from "./solver";
+import { enumerateSolutions, solveLevel } from "./solver";
 import type { Level, Position } from "./types";
 
 export interface PartialPlacementMetrics {
@@ -29,6 +29,8 @@ export interface DifficultyMetrics {
   furnitureCount: number;
   catCount: number;
   solutionCount: number;
+  solutionRowProfileCount: number;
+  solutionColumnProfileCount: number;
   solutionUsesSeparatedPair: boolean;
   axisCapacity: {
     rowCapacities: number[];
@@ -183,9 +185,13 @@ function allocationCount(capacities: number[], total: number) {
 }
 
 export function evaluateDifficulty(level: Level): DifficultyMetrics {
-  const solved = solveLevel(level, 2);
-  const solution = solved.firstSolution ?? [];
-  const solutionKeys = new Set(solution.map(positionKey));
+  const solutionPolicy = level.solutionPolicy ?? { min: 1, max: 1 };
+  const solutions = enumerateSolutions(level, solutionPolicy.max + 1);
+  const solved = solveLevel(level, solutionPolicy.max + 1);
+  const solution = solutions[0] ?? [];
+  const solutionKeys = new Set(solutions.flat().map(positionKey));
+  const solutionRowProfiles = new Set(solutions.map((entry) => profile(entry, level.height, "row")));
+  const solutionColumnProfiles = new Set(solutions.map((entry) => profile(entry, level.width, "col")));
   const wrongBeds = allBeds(level).filter((bed) => !solutionKeys.has(positionKey(bed)));
   const maximumReachableCatsByBed = Object.fromEntries(
     wrongBeds.map((bed) => [positionKey(bed), maximumIndependentSetWithBed(level, bed)]),
@@ -205,7 +211,11 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
   const columnAllocationCount = allocationCount(columnCapacities, level.catCount);
   const warnings: string[] = [];
 
-  if (solved.solutionCount !== 1) warnings.push("一意解ではありません");
+  if (solved.solutionCount < solutionPolicy.min || solved.solutionCount > solutionPolicy.max) {
+    warnings.push(`解の数が許容範囲${solutionPolicy.min}〜${solutionPolicy.max}個に収まりません`);
+  }
+  if (level.solutionPolicy && solutionColumnProfiles.size < 2) warnings.push("正解間で列配分が変化しません");
+  if (level.solutionPolicy && solutionRowProfiles.size < 2) warnings.push("正解間で行配分が変化しません");
   if (level.number >= 6 && !solutionUsesSeparatedPair) warnings.push("正解が家具区間を利用していません");
   if (level.number >= 10 && columnAllocationCount < 2) warnings.push("列ごとの猫数が開始時点で一意です");
   if (level.number >= 21 && rowAllocationCount < 2) warnings.push("行ごとの猫数が開始時点で一意です");
@@ -228,6 +238,8 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
     furnitureCount: level.cells.filter((cell) => cell === "furniture").length,
     catCount: level.catCount,
     solutionCount: solved.solutionCount,
+    solutionRowProfileCount: solutionRowProfiles.size,
+    solutionColumnProfileCount: solutionColumnProfiles.size,
     solutionUsesSeparatedPair,
     axisCapacity: {
       rowCapacities,

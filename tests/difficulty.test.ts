@@ -54,4 +54,11 @@ describe("人間向け難易度評価", () => {
     expect(metrics.axisCapacity.columnCapacitySlack).toBe(1);
     expect(metrics.axisCapacity.columnAllocationCount).toBe(2);
   });
+
+  it("複数解の盤面で列と行の配分候補を検出する", () => {
+    const metrics = evaluateDifficulty(makeLevel(["BBB.B", "BFBFF", "BBB.F", ".....", "..B.F"], 4));
+
+    expect(metrics.oneMoveBefore.columnProfileCount).toBeGreaterThanOrEqual(2);
+    expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(2);
+  });
 });

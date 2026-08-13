@@ -15,6 +15,10 @@ export function validateLevel(level: Level): string[] {
   if (initial.some((cat, index) => initial.slice(index + 1).some((b) => conflicts(level, cat, b)))) {
     errors.push("初期配置の猫が競合しています");
   }
-  if (solveLevel(level).solutionCount !== 1) errors.push("一意解ではありません");
+  const solutionPolicy = level.solutionPolicy ?? { min: 1, max: 1 };
+  const solutionCount = solveLevel(level, solutionPolicy.max + 1).solutionCount;
+  if (solutionCount < solutionPolicy.min || solutionCount > solutionPolicy.max) {
+    errors.push(`解の数が許容範囲${solutionPolicy.min}〜${solutionPolicy.max}個に収まりません`);
+  }
   return errors;
 }

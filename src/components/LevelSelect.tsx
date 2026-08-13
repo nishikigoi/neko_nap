@@ -24,7 +24,11 @@ export default function LevelSelect({ levels, save, onSelect, onExport }: LevelS
                 <span className="level-card__number">{level.number}</span>
                 <span className="level-card__copy">
                   <span className="level-card__name">{level.title}</span>
-                  <span className="level-card__difficulty">{level.difficulty}{level.pacing === "peak" ? " · 山場" : level.pacing === "breather" ? " · ひとやすみ" : ""}</span>
+                  <span className="level-card__difficulty">
+                    {level.difficulty}
+                    {level.pacing === "peak" ? " · 山場" : level.pacing === "breather" ? " · ひとやすみ" : ""}
+                    {level.solutionPolicy ? ` · ${level.solutionPolicy.min}通り` : ""}
+                  </span>
                 </span>
                 <span className="level-card__state" aria-label={complete ? "クリア済み" : unlocked ? "挑戦可能" : "未解放"}>{complete ? "✓" : unlocked ? "○" : "🔒"}</span>
               </button>

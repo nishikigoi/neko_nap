@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { solveLevel } from "../src/game/solver";
+import { enumerateSolutions, solveLevel } from "../src/game/solver";
 import { validateLevel } from "../src/game/validation";
 import { levels } from "../src/levels/levels";
 
@@ -10,9 +10,26 @@ describe("ステージデータ", () => {
     expect(new Set(levels.map((level) => level.id)).size).toBe(50);
   });
 
-  it.each(levels)("$id が有効で一意解を持つ", (level) => {
+  it.each(levels)("$id が許容された数の解を持つ", (level) => {
     expect(validateLevel(level)).toEqual([]);
-    expect(solveLevel(level).solutionCount).toBe(1);
+    const policy = level.solutionPolicy ?? { min: 1, max: 1 };
+    const solutionCount = solveLevel(level, policy.max + 1).solutionCount;
+    expect(solutionCount).toBeGreaterThanOrEqual(policy.min);
+    expect(solutionCount).toBeLessThanOrEqual(policy.max);
+  });
+
+  it("ステージ10は異なる行・列配分を持つ4つの解がある", () => {
+    const level = levels[9];
+    const solutions = enumerateSolutions(level, 5);
+    const profiles = (axis: "row" | "col", length: number) => new Set(solutions.map((solution) => {
+      const counts = Array<number>(length).fill(0);
+      for (const position of solution) counts[position[axis]] += 1;
+      return counts.join(",");
+    }));
+    expect(level.solutionPolicy).toEqual({ min: 4, max: 4 });
+    expect(solutions).toHaveLength(4);
+    expect(profiles("row", level.height).size).toBe(2);
+    expect(profiles("col", level.width).size).toBe(2);
   });
 
   it.each(levels.filter((level) => level.number >= 6))(

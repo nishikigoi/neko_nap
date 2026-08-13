@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { solveLevel } from "../src/game/solver";
+import { canCompleteLevel, solveLevel } from "../src/game/solver";
 import type { Level } from "../src/game/types";
 
 const make = (cells: Level["cells"], catCount: number): Level => ({
@@ -17,5 +17,11 @@ describe("ソルバー", () => {
 
   it("複数解を2つで打ち切る", () => {
     expect(solveLevel(make(["bed", "floor", "bed", "floor", "bed"], 1)).solutionCount).toBe(2);
+  });
+
+  it("指定済みの猫を含む完成解があるか判定する", () => {
+    const level = make(["bed", "furniture", "bed"], 2);
+    expect(canCompleteLevel(level, [{ row: 0, col: 0 }])).toBe(true);
+    expect(canCompleteLevel(level, [{ row: 0, col: 1 }])).toBe(false);
   });
 });
