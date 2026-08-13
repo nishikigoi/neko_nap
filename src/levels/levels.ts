@@ -4,6 +4,8 @@ const map = (rows: string[]): CellKind[] =>
   rows.join("").split("").map((char): CellKind => {
     if (char === "B") return "bed";
     if (char === "F") return "furniture";
+    if (char === "V") return "vertical-barrier";
+    if (char === "H") return "horizontal-barrier";
     return "floor";
   });
 
@@ -55,7 +57,7 @@ const legacyLevels: Level[] = [
   defineLevel(17, 5, "N4", "葉っぱのカーテン", "横の確定が、縦の候補を変えていきます", ["F...BB", ".B.FBF", ".F.FBB", ".B..BB", "......"]),
   defineLevel(18, 5, "N4", "空いている列", "すべての列に猫が必要とは限りません", ["......", ".BB...", "BFBF.B", "BBB...", "..F.FF", ".F...."]),
   defineLevel(19, 7, "N4", "七匹の秘密基地", "家具を挟めば、同じ行に何匹か眠れます", [".F.FFB", "FF.B..", ".BFFBB", "...BB.", "B.B.BB", "BB.BBB"]),
-  defineLevel(20, 5, "N4", "星明かりの大部屋", "置けそうでも最後に足りなくなる寝床を見極めよう", ["F.FF..", "FB.BBB", ".BFB.B", "BBBBBB", ".BFB..", "FB.FF."], "peak", { min: 6, max: 6 }),
+  defineLevel(20, 5, "N4", "交差する土管", "土管の向きを見て、縦と横の視線を別々に追おう", ["H.FF..", "FB.BBB", ".BVB.B", ".BBBBB", ".BVB..", "FB.FF."], "peak", { min: 1, max: 1 }),
   defineLevel(21, 5, "N3", "毛布でひとやすみ", "まとまりごとに考えると、すぐに見えてきます", ["F.....", "..F..F", "....B.", ".BFBFB", ".B.BBB"], "breather"),
   defineLevel(22, 6, "N4", "まよえるクッション", "置けそうな候補を、ひとつずつ確かめよう", ["FF....", "B.FBF.", ".F...F", "..BBBB", "BBFB.B", "BB.BBB"]),
   defineLevel(23, 6, "N4", "でこぼこな部屋", "左右非対称な家具の区切りを読み解こう", ["..F..BF", "B...B.F", "BB..B.B", "BBFFB..", "..FFF..", "BB..BB."]),

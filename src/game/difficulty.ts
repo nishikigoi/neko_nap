@@ -1,5 +1,5 @@
 import { allBeds, positionKey } from "./board";
-import { conflicts } from "./lineOfSight";
+import { blocksSight, conflicts } from "./lineOfSight";
 import { enumerateSolutions, solveLevel } from "./solver";
 import type { Level, Position } from "./types";
 
@@ -139,7 +139,8 @@ function hasFurnitureBetween(level: Level, a: Position, b: Position) {
   let row = a.row + rowStep;
   let col = a.col + colStep;
   while (row !== b.row || col !== b.col) {
-    if (level.cells[row * level.width + col] === "furniture") return true;
+    const axis = a.row === b.row ? "row" : "col";
+    if (blocksSight(level.cells[row * level.width + col], axis)) return true;
     row += rowStep;
     col += colStep;
   }
@@ -157,7 +158,7 @@ function lineCapacities(level: Level, axis: "row" | "col") {
       const row = axis === "row" ? line : offset;
       const col = axis === "row" ? offset : line;
       const cell = level.cells[row * level.width + col];
-      if (cell === "furniture") {
+      if (blocksSight(cell, axis)) {
         if (segmentHasBed) capacity += 1;
         segmentHasBed = false;
       } else if (cell === "bed") {
@@ -235,7 +236,9 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
   return {
     levelId: level.id,
     bedCount: allBeds(level).length,
-    furnitureCount: level.cells.filter((cell) => cell === "furniture").length,
+    furnitureCount: level.cells.filter((cell) =>
+      cell === "furniture" || cell === "vertical-barrier" || cell === "horizontal-barrier"
+    ).length,
     catCount: level.catCount,
     solutionCount: solved.solutionCount,
     solutionRowProfileCount: solutionRowProfiles.size,

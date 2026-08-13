@@ -87,6 +87,13 @@
 🐱
 ```
 
+ステージ20では方向付き遮蔽物を試験導入する。
+
+- 縦土管は縦方向の視線だけを遮る。
+- 横土管は横方向の視線だけを遮る。
+- 通常の家具は縦横両方向の視線を遮る。
+- 土管の向きは形状だけに頼らず、アクセシビリティラベルでも説明する。
+
 ### 3.4 間違えたときの扱い
 
 - ライフ、時間ペナルティ、ゲームオーバーは設けない。
@@ -144,7 +151,7 @@ solutionPolicy: {
 ### ソルバーのインターフェース
 
 ```ts
-export type CellKind = "floor" | "bed" | "furniture";
+export type CellKind = "floor" | "bed" | "furniture" | "vertical-barrier" | "horizontal-barrier";
 
 export interface Position {
   row: number;

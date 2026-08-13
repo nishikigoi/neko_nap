@@ -1,4 +1,4 @@
-export type CellKind = "floor" | "bed" | "furniture";
+export type CellKind = "floor" | "bed" | "furniture" | "vertical-barrier" | "horizontal-barrier";
 export type BedMark = "empty" | "cat" | "cross";
 
 export interface Position {

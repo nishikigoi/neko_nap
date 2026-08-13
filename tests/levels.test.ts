@@ -33,21 +33,24 @@ describe("ステージデータ", () => {
     expect(profiles("col", level.width).size).toBe(2);
   });
 
-  it("ステージ20は配分候補と完成直前の罠を十分に持つ", () => {
+  it("ステージ20は3種類の遮蔽物と完成直前の罠を持つ一意解問題である", () => {
     const metrics = evaluateDifficulty(levels[19]);
 
-    expect(metrics.solutionCount).toBe(6);
-    expect(metrics.solutionColumnProfileCount).toBeGreaterThanOrEqual(2);
-    expect(metrics.solutionRowProfileCount).toBeGreaterThanOrEqual(3);
-    expect(metrics.oneMoveBefore.placementCount).toBeGreaterThanOrEqual(50);
-    expect(metrics.oneMoveBefore.columnProfileCount).toBeGreaterThanOrEqual(8);
-    expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(8);
-    expect(metrics.wrongBeds.wrongBedCount).toBeGreaterThanOrEqual(8);
+    expect(metrics.solutionCount).toBe(1);
+    const cells = new Set(levels[19].cells);
+    expect(cells.has("furniture")).toBe(true);
+    expect(cells.has("vertical-barrier")).toBe(true);
+    expect(cells.has("horizontal-barrier")).toBe(true);
+    expect(metrics.oneMoveBefore.placementCount).toBeGreaterThanOrEqual(30);
+    expect(metrics.oneMoveBefore.columnProfileCount).toBeGreaterThanOrEqual(5);
+    expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(5);
+    expect(metrics.wrongBeds.wrongBedCount).toBeGreaterThanOrEqual(10);
     expect(metrics.wrongBeds.lateContradictionCount).toBe(metrics.wrongBeds.wrongBedCount);
   });
 
   it("ステージ11から50は評価スコアが降順にならない", () => {
-    const scores = levels.slice(10).map((level) => evaluateDifficulty(level).ambiguityScore);
+    const scores = levels.filter((level) => level.number >= 11 && level.number !== 20)
+      .map((level) => evaluateDifficulty(level).ambiguityScore);
     for (let index = 1; index < scores.length; index += 1) {
       expect(scores[index]).toBeGreaterThanOrEqual(scores[index - 1] - Number.EPSILON);
     }

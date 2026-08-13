@@ -68,11 +68,18 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
           );
         }
 
+        const barrierLabel = kind === "vertical-barrier"
+          ? "縦方向の視線を遮る家具"
+          : kind === "horizontal-barrier"
+            ? "横方向の視線を遮る家具"
+            : kind === "furniture" ? "縦横の視線を遮る家具" : "床";
         return (
-          <div className={classes} key={key} role="gridcell" aria-label={kind === "furniture" ? "家具" : "床"}>
+          <div className={classes} key={key} role="gridcell" aria-label={barrierLabel}>
             {kind === "furniture" && (
               <span className="plant" aria-hidden="true"><span className="plant__leaf plant__leaf--1" /><span className="plant__leaf plant__leaf--2" /><span className="plant__leaf plant__leaf--3" /><span className="plant__pot" /></span>
             )}
+            {kind === "vertical-barrier" && <span className="pipe pipe--vertical" aria-hidden="true" />}
+            {kind === "horizontal-barrier" && <span className="pipe pipe--horizontal" aria-hidden="true" />}
           </div>
         );
         })}
