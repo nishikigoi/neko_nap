@@ -129,7 +129,7 @@ const replacements: Replacement[] = [
   [47, 5, 12, "FBFBF./BBBBFF/FBF.FF/BBBBBF/.BBB../FBFFF."],
   [48, 5, 12, "FB.BB./FF..BF/BBBBBB/FFBBBF/.FBFBF/.FBFF."],
   [49, 5, 12, "FFFF.F/BBBBBB/BF.FFB/B..BBB/BFFFBB/BF.F.F"],
-  [50, 5, 12, "FFF.BF/FFF.B./BBBFBF/F.BFB./BBBBBB/.BB.BF"],
+  [50, 6, 24, "BF.FFBF/BFFFF../.BBBBBB/B..F.../.F..BBB/.F..BB./BBBBB.B"],
 ];
 
 const replacementByNumber = new Map(replacements.map((replacement) => [replacement[0], replacement]));
