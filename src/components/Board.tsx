@@ -4,6 +4,8 @@ import { catsFromMarks } from "../game/state";
 import type { Level, Marks, Position } from "../game/types";
 import Cat from "./Cat";
 import type { Copy } from "../i18n";
+import bedCushionIcon from "../assets/bed-cushion-icon.png";
+import treeObstacleIcon from "../assets/tree-obstacle-icon.png";
 
 interface BoardProps {
   level: Level;
@@ -63,7 +65,7 @@ export default function Board({ level, marks, complete, hintKey, onBedClick, cop
               aria-label={copy.cellAt(position.row + 1, position.col + 1, label)}
               onClick={() => onBedClick(key)}
             >
-              <span className="bed" aria-hidden="true"><span className="bed__pillow" /></span>
+              <img className="bed" src={bedCushionIcon} alt="" aria-hidden="true" />
               {mark === "cat" && <Cat sleeping={complete} conflict={isConflict} />}
               {mark === "cross" && <span className="cross" aria-hidden="true">×</span>}
             </button>
@@ -74,7 +76,7 @@ export default function Board({ level, marks, complete, hintKey, onBedClick, cop
         return (
           <div className={classes} key={key} role="gridcell" aria-label={barrierLabel}>
             {kind === "furniture" && (
-              <span className="plant" aria-hidden="true"><span className="plant__leaf plant__leaf--1" /><span className="plant__leaf plant__leaf--2" /><span className="plant__leaf plant__leaf--3" /><span className="plant__pot" /></span>
+              <img className="obstacle" src={treeObstacleIcon} alt="" aria-hidden="true" />
             )}
           </div>
         );

@@ -1,6 +1,7 @@
 import type { Copy } from "../i18n";
 import catFaceIcon from "../assets/cat-face-icon.png";
 import sleepyKitten from "../assets/sleepy-kitten-resting.png";
+import treeObstacleIcon from "../assets/tree-obstacle-icon.png";
 
 interface HomeScreenProps {
   onStart: () => void;
@@ -25,13 +26,15 @@ export default function HomeScreen({ onStart, copy }: HomeScreenProps) {
           <img className="nap-journey__kitten nap-journey__kitten--rump" src={sleepyKitten} alt="" />
           <img className="nap-journey__kitten nap-journey__kitten--tail-tip" src={sleepyKitten} alt="" />
           <img className="nap-journey__kitten nap-journey__kitten--paw" src={sleepyKitten} alt="" />
-          <span className="nap-journey__zzz nap-journey__zzz--visible">z</span>
+          <span className="nap-journey__zzz nap-journey__zzz--one">z</span>
+          <span className="nap-journey__zzz nap-journey__zzz--two">z</span>
+          <span className="nap-journey__zzz nap-journey__zzz--three">z</span>
         </span>
       </div>
       <section className="rules" aria-labelledby="rules-heading">
         <h1 id="rules-heading">{copy.rulesHeading}</h1>
-        <p><span className="rules__icons" aria-hidden="true"><img src={catFaceIcon} alt="" /> ↔ <img src={catFaceIcon} alt="" /></span>{copy.ruleSight}</p>
-        <p><span className="rules__icons" aria-hidden="true"><img src={catFaceIcon} alt="" /> 🌿 <img src={catFaceIcon} alt="" /></span>{copy.ruleFurniture}</p>
+        <p><span className="rules__icons" aria-hidden="true"><img src={catFaceIcon} alt="" /><b className="rules__arrow">↔</b><img src={catFaceIcon} alt="" /></span>{copy.ruleSight}</p>
+        <p><span className="rules__icons" aria-hidden="true"><img src={catFaceIcon} alt="" /><img src={treeObstacleIcon} alt="" /><img src={catFaceIcon} alt="" /></span>{copy.ruleFurniture}</p>
       </section>
       <button className="start-button" aria-label={copy.start} title={copy.start} onClick={onStart}>▶</button>
     </main>
