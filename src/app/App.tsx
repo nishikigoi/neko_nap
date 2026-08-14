@@ -1,19 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
+import catFaceIcon from "../assets/cat-face-icon.png";
 import Board from "../components/Board";
 import CompletionOverlay from "../components/CompletionOverlay";
 import Controls from "../components/Controls";
-import LevelSelect from "../components/LevelSelect";
+import HomeScreen from "../components/HomeScreen";
 import { allBeds, positionKey } from "../game/board";
 import { conflictPairs } from "../game/lineOfSight";
 import { canCompleteLevel, solveLevel } from "../game/solver";
 import { catsFromMarks, createGameState, cycleBed, isComplete, undo } from "../game/state";
 import type { GameState } from "../game/types";
 import { levels } from "../levels/levels";
-import { defaultSave, emptyStats, exportSave, loadSave, storeSave, type SaveData } from "../storage/progress";
+import { defaultSave, emptyStats, loadSave, storeSave, type SaveData } from "../storage/progress";
+import { useCopy } from "../i18n";
 
 type Screen = "select" | "game";
 
 export default function App() {
+  const { copy } = useCopy();
   const [screen, setScreen] = useState<Screen>("select");
   const [levelIndex, setLevelIndex] = useState(0);
   const level = levels[levelIndex];
@@ -111,15 +114,15 @@ export default function App() {
     const key = positionKey(target);
     setHintKey(key);
     setMessage(wrongCat
-      ? "この寝床を選ぶと、残りの猫を全員寝かせられません。"
+      ? copy.wrongBedHint
       : level.solutionPolicy
-        ? "眠り方はひとつではありません。この寝床から続けられます。"
-        : "この寝床から考えると、みんなの場所が見つかりそうです。");
+        ? copy.flexibleHint
+        : copy.nextBedHint);
     setGame((current) => ({ ...current, hintCount: current.hintCount + 1 }));
   };
 
   const handleReset = () => {
-    if (game.moveCount > 2 && !window.confirm("このステージを最初からやり直しますか？")) return;
+    if (game.moveCount > 2 && !window.confirm(copy.resetConfirm)) return;
     setGame(createGameState(level));
     setHintKey(undefined);
     setMessage(undefined);
@@ -130,29 +133,25 @@ export default function App() {
   };
 
   if (screen === "select") {
-    return <LevelSelect levels={levels} save={save} onSelect={beginLevel} onExport={() => exportSave(save)} />;
+    return <HomeScreen onStart={() => beginLevel(Math.min(save.unlockedLevel, levels.length) - 1)} copy={copy} />;
   }
 
   return (
     <main className="game-screen">
       <header className="game-header">
-        <button className="icon-button" aria-label="ステージ選択へ戻る" onClick={() => setScreen("select")}>‹</button>
-        <div>
-          <span className="stage-label">STAGE {level.number} · {level.difficulty}</span>
-          <h1>{level.title}</h1>
-        </div>
-        <span className="cat-counter" aria-label={`${level.catCount}匹寝かせる`}><b>{catsFromMarks(level, game.marks).length}</b> / {level.catCount}</span>
+        <button className="icon-button" aria-label={copy.backToLevels} title={copy.backToLevels} onClick={() => setScreen("select")}>‹</button>
+        <span className="stage-number">{copy.level} {level.number}</span>
+        <span className="cat-counter" aria-label={copy.catsSleeping(level.catCount)}><img className="cat-counter__icon" src={catFaceIcon} alt="" /> <b>{catsFromMarks(level, game.marks).length}</b> / {level.catCount}</span>
       </header>
       <section className="play-area">
-        <p className="instruction">{level.instruction}</p>
-        <Board level={level} marks={game.marks} complete={complete} hintKey={hintKey} onBedClick={handleBedClick} />
+        <Board level={level} marks={game.marks} complete={complete} hintKey={hintKey} onBedClick={handleBedClick} copy={copy} />
         <div className={`status-message ${conflicts.length ? "status-message--warning" : ""}`} aria-live="polite">
-          {message ?? (conflicts.length ? "視線が合って、まだ眠れないみたい…" : "　")}
+          {message ?? (conflicts.length ? copy.conflict : " ")}
         </div>
-        <Controls canUndo={game.history.length > 0} onUndo={() => setGame(undo(game))} onReset={handleReset} onHint={handleHint} />
+        <Controls copy={copy} canUndo={game.history.length > 0} onUndo={() => setGame(undo(game))} onReset={handleReset} onHint={handleHint} />
       </section>
       {complete && game.completedAt && (
-        <CompletionOverlay isLast={levelIndex === levels.length - 1} onNext={() => beginLevel(levelIndex + 1)} onSelect={() => setScreen("select")} />
+        <CompletionOverlay copy={copy} isLast={levelIndex === levels.length - 1} onNext={() => beginLevel(levelIndex + 1)} onSelect={() => setScreen("select")} />
       )}
     </main>
   );

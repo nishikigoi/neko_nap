@@ -39,12 +39,12 @@ for (let attempt = 0; attempt < 2_000_000 && candidates.length < 30; attempt += 
   const level = { ...base, solutionPolicy: { min: solutions.length, max: solutions.length } };
   const metrics = evaluateDifficulty(level);
   if (metrics.wrongBeds.lateContradictionCount < 8) continue;
-  if (metrics.ambiguityScore < 50) continue;
+  if (metrics.difficultyScore < 50) continue;
   candidates.push({
     rows,
     cats,
     solutions: solutions.length,
-    score: metrics.ambiguityScore,
+    score: metrics.difficultyScore,
     late: metrics.wrongBeds.lateContradictionCount,
     warnings: metrics.warnings,
   });

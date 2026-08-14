@@ -20,7 +20,10 @@ console.table(results.map((result) => ({
   lateWrongBeds: `${result.wrongBeds.lateContradictionCount}/${result.wrongBeds.wrongBedCount}`,
   deadEnds: `${result.uniqueSolution.oneMoveBeforeDeadEndCount}/${result.uniqueSolution.twoMovesBeforeDeadEndCount}`,
   peeling: result.uniqueSolution.peelingRoundSizes.join("→"),
-  score: result.ambiguityScore.toFixed(2),
+  ambiguity: result.scoreBreakdown.ambiguity.toFixed(2),
+  uniqueDeadEnds: result.scoreBreakdown.uniqueDeadEnds.toFixed(2),
+  deductionChain: result.scoreBreakdown.deductionChain.toFixed(2),
+  score: result.difficultyScore.toFixed(2),
   warnings: result.warnings.join(" / "),
 })));
 

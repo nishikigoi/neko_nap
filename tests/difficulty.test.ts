@@ -61,4 +61,17 @@ describe("人間向け難易度評価", () => {
     expect(metrics.oneMoveBefore.columnProfileCount).toBeGreaterThanOrEqual(2);
     expect(metrics.oneMoveBefore.rowProfileCount).toBeGreaterThanOrEqual(2);
   });
+
+  it("一意解では死に筋と確定連鎖を総合難易度へ加点する", () => {
+    const metrics = evaluateDifficulty(makeLevel(["B.B", "B.."], 2));
+
+    expect(metrics.scoreBreakdown.uniqueDeadEnds).toBeGreaterThan(0);
+    expect(metrics.scoreBreakdown.deductionChain).toBeGreaterThan(0);
+    expect(metrics.difficultyScore).toBeCloseTo(
+      metrics.scoreBreakdown.ambiguity +
+        metrics.scoreBreakdown.uniqueDeadEnds +
+        metrics.scoreBreakdown.deductionChain,
+    );
+    expect(metrics.difficultyScore).toBeGreaterThan(metrics.ambiguityScore);
+  });
 });

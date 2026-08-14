@@ -1,10 +1,8 @@
 import { cellAt } from "./board";
 import type { Level, Position } from "./types";
 
-export function blocksSight(kind: Level["cells"][number], axis: "row" | "col") {
-  if (kind === "furniture") return true;
-  if (axis === "row") return kind === "vertical-barrier";
-  return kind === "horizontal-barrier";
+export function blocksSight(kind: Level["cells"][number]) {
+  return kind === "furniture";
 }
 
 export function conflicts(level: Level, a: Position, b: Position): boolean {
@@ -17,7 +15,7 @@ export function conflicts(level: Level, a: Position, b: Position): boolean {
   let col = a.col + colStep;
 
   while (row !== b.row || col !== b.col) {
-    if (blocksSight(cellAt(level, { row, col }), rowStep === 0 ? "row" : "col")) return false;
+    if (blocksSight(cellAt(level, { row, col }))) return false;
     row += rowStep;
     col += colStep;
   }

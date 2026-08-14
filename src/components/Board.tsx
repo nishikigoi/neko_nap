@@ -3,6 +3,7 @@ import { conflictPairs, conflicts } from "../game/lineOfSight";
 import { catsFromMarks } from "../game/state";
 import type { Level, Marks, Position } from "../game/types";
 import Cat from "./Cat";
+import type { Copy } from "../i18n";
 
 interface BoardProps {
   level: Level;
@@ -10,6 +11,7 @@ interface BoardProps {
   complete: boolean;
   hintKey?: string;
   onBedClick: (key: string) => void;
+  copy: Copy;
 }
 
 const inConflictLine = (position: Position, a: Position, b: Position) => {
@@ -22,7 +24,7 @@ const inConflictLine = (position: Position, a: Position, b: Position) => {
   return false;
 };
 
-export default function Board({ level, marks, complete, hintKey, onBedClick }: BoardProps) {
+export default function Board({ level, marks, complete, hintKey, onBedClick, copy }: BoardProps) {
   const cats = catsFromMarks(level, marks);
   const pairs = conflictPairs(level, cats);
   const conflictKeys = new Set(pairs.flat().map(positionKey));
@@ -34,7 +36,7 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
         className="board"
         style={{ "--board-cols": level.width, "--board-rows": level.height } as React.CSSProperties}
         role="grid"
-        aria-label={`ステージ${level.number}の盤面`}
+        aria-label={copy.board(level.number)}
       >
       {level.cells.map((kind, index) => {
         const position = { row: Math.floor(index / level.width), col: index % level.width };
@@ -52,13 +54,13 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
         ].filter(Boolean).join(" ");
 
         if (beds.has(key)) {
-          const label = mark === "cat" ? "猫がいる寝床" : mark === "cross" ? "置かない印を付けた寝床" : "空の寝床";
+          const label = copy.bed[mark];
           return (
             <button
               className={classes}
               key={key}
               role="gridcell"
-              aria-label={`${position.row + 1}行${position.col + 1}列、${label}`}
+              aria-label={copy.cellAt(position.row + 1, position.col + 1, label)}
               onClick={() => onBedClick(key)}
             >
               <span className="bed" aria-hidden="true"><span className="bed__pillow" /></span>
@@ -68,18 +70,12 @@ export default function Board({ level, marks, complete, hintKey, onBedClick }: B
           );
         }
 
-        const barrierLabel = kind === "vertical-barrier"
-          ? "縦方向に視線を通す土管"
-          : kind === "horizontal-barrier"
-            ? "横方向に視線を通す土管"
-            : kind === "furniture" ? "縦横の視線を遮る家具" : "床";
+        const barrierLabel = kind === "furniture" ? copy.furniture : copy.floor;
         return (
           <div className={classes} key={key} role="gridcell" aria-label={barrierLabel}>
             {kind === "furniture" && (
               <span className="plant" aria-hidden="true"><span className="plant__leaf plant__leaf--1" /><span className="plant__leaf plant__leaf--2" /><span className="plant__leaf plant__leaf--3" /><span className="plant__pot" /></span>
             )}
-            {kind === "vertical-barrier" && <span className="pipe pipe--vertical" aria-hidden="true" />}
-            {kind === "horizontal-barrier" && <span className="pipe pipe--horizontal" aria-hidden="true" />}
           </div>
         );
         })}

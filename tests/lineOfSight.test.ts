@@ -12,8 +12,6 @@ const level = (rows: string[]): Level => ({
   title: "test",
   cells: rows.join("").split("").map((cell): CellKind => {
     if (cell === "F") return "furniture";
-    if (cell === "V") return "vertical-barrier";
-    if (cell === "H") return "horizontal-barrier";
     return cell === "B" ? "bed" : "floor";
   }),
 });
@@ -27,18 +25,9 @@ describe("視線判定", () => {
     expect(conflicts(level(["B", ".", "B"]), { row: 0, col: 0 }, { row: 2, col: 0 })).toBe(true);
   });
 
-  it("家具は視線を遮る", () => {
+  it("家具は縦横両方向の視線を遮る", () => {
     expect(conflicts(level(["BFB"]), { row: 0, col: 0 }, { row: 0, col: 2 })).toBe(false);
-  });
-
-  it("縦土管は縦方向を通し、横方向を遮る", () => {
-    expect(conflicts(level(["B", "V", "B"]), { row: 0, col: 0 }, { row: 2, col: 0 })).toBe(true);
-    expect(conflicts(level(["BVB"]), { row: 0, col: 0 }, { row: 0, col: 2 })).toBe(false);
-  });
-
-  it("横土管は横方向を通し、縦方向を遮る", () => {
-    expect(conflicts(level(["B", "H", "B"]), { row: 0, col: 0 }, { row: 2, col: 0 })).toBe(false);
-    expect(conflicts(level(["BHB"]), { row: 0, col: 0 }, { row: 0, col: 2 })).toBe(true);
+    expect(conflicts(level(["B", "F", "B"]), { row: 0, col: 0 }, { row: 2, col: 0 })).toBe(false);
   });
 
   it("斜め方向は競合しない", () => {

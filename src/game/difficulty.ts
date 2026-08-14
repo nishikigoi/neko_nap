@@ -51,6 +51,13 @@ export interface DifficultyMetrics {
   twoMovesBefore: PartialPlacementMetrics;
   wrongBeds: WrongBedMetrics;
   uniqueSolution: UniqueSolutionMetrics;
+  scoreBreakdown: {
+    ambiguity: number;
+    uniqueDeadEnds: number;
+    deductionChain: number;
+  };
+  difficultyScore: number;
+  /** @deprecated 比較用に残している旧スコア。新しい難易度比較には difficultyScore を使う。 */
   ambiguityScore: number;
   warnings: string[];
 }
@@ -147,8 +154,7 @@ function hasFurnitureBetween(level: Level, a: Position, b: Position) {
   let row = a.row + rowStep;
   let col = a.col + colStep;
   while (row !== b.row || col !== b.col) {
-    const axis = a.row === b.row ? "row" : "col";
-    if (blocksSight(level.cells[row * level.width + col], axis)) return true;
+    if (blocksSight(level.cells[row * level.width + col])) return true;
     row += rowStep;
     col += colStep;
   }
@@ -166,7 +172,7 @@ function lineCapacities(level: Level, axis: "row" | "col") {
       const row = axis === "row" ? line : offset;
       const col = axis === "row" ? offset : line;
       const cell = level.cells[row * level.width + col];
-      if (blocksSight(cell, axis)) {
+      if (blocksSight(cell)) {
         if (segmentHasBed) capacity += 1;
         segmentHasBed = false;
       } else if (cell === "bed") {
@@ -204,7 +210,7 @@ function lineSegmentIds(level: Level, axis: "row" | "col") {
       const row = axis === "row" ? line : offset;
       const col = axis === "row" ? offset : line;
       const index = row * level.width + col;
-      if (blocksSight(level.cells[index], axis)) id = nextId++;
+      if (blocksSight(level.cells[index])) id = nextId++;
       else ids[index] = id;
     }
   }
@@ -302,12 +308,21 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
     Math.log2(oneMoveBefore.maxPlacementsPerJointProfile + 1) * 3 +
     (wrongBeds.length ? lateContradictionCount / wrongBeds.length : 0) * 4;
 
+  // 一意解では行・列の配分候補が必然的に少なくなり、ambiguityScore だけでは
+  // 「終盤まで判明しない誤答」と「確定手の長い連鎖」を過小評価する。
+  // 死に筋は盤面サイズに伴って組合せ的に増えるため対数化し、推理の段数は
+  // プレイヤーが実際に辿る手順の長さなので線形に加点する。
+  const uniqueDeadEnds = solved.solutionCount === 1
+    ? Math.log2(uniqueSolution.oneMoveBeforeDeadEndCount + 1) * 2 +
+      Math.log2(uniqueSolution.twoMovesBeforeDeadEndCount + 1) * 1.5
+    : 0;
+  const deductionChain = solved.solutionCount === 1 ? uniqueSolution.peelingRounds * 2 : 0;
+  const difficultyScore = ambiguityScore + uniqueDeadEnds + deductionChain;
+
   return {
     levelId: level.id,
     bedCount: allBeds(level).length,
-    furnitureCount: level.cells.filter((cell) =>
-      cell === "furniture" || cell === "vertical-barrier" || cell === "horizontal-barrier"
-    ).length,
+    furnitureCount: level.cells.filter((cell) => cell === "furniture").length,
     catCount: level.catCount,
     solutionCount: solved.solutionCount,
     solutionRowProfileCount: solutionRowProfiles.size,
@@ -333,6 +348,12 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
       maximumReachableCatsByBed,
     },
     uniqueSolution,
+    scoreBreakdown: {
+      ambiguity: ambiguityScore,
+      uniqueDeadEnds,
+      deductionChain,
+    },
+    difficultyScore,
     ambiguityScore,
     warnings,
   };

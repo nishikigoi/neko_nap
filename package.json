@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc -b",
     "validate-levels": "vitest run tests/levels.test.ts",
-    "analyze-levels": "node --import tsx scripts/analyze-levels.ts"
+    "analyze-levels": "node --import tsx scripts/analyze-levels.ts",
+    "generate-ranked-levels": "node --import tsx scripts/generate-ranked-levels.ts"
   },
   "dependencies": {
     "react": "latest",

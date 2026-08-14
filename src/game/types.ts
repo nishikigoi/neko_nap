@@ -1,4 +1,4 @@
-export type CellKind = "floor" | "bed" | "furniture" | "vertical-barrier" | "horizontal-barrier";
+export type CellKind = "floor" | "bed" | "furniture";
 export type BedMark = "empty" | "cat" | "cross";
 
 export interface Position {
@@ -13,7 +13,9 @@ export interface Level {
   height: number;
   catCount: number;
   cells: CellKind[];
-  title: string;
+  /** Legacy generator metadata. It is intentionally not shown in the UI. */
+  title?: string;
+  /** Legacy generator metadata. It is intentionally not shown in the UI. */
   instruction?: string;
   initialCats?: Position[];
   solutionPolicy?: {
