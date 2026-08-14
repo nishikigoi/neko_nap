@@ -39,6 +39,17 @@ export const defaultSave = (): SaveData => ({
   stats: {},
 });
 
+export function defaultSelectedLevel(completedLevels: number[], unlockedLevel: number, levelCount: number) {
+  const lastSelectableLevel = Math.min(levelCount, Math.max(1, unlockedLevel));
+  const completed = new Set(completedLevels);
+
+  for (let level = 1; level <= lastSelectableLevel; level += 1) {
+    if (!completed.has(level)) return level;
+  }
+
+  return lastSelectableLevel;
+}
+
 export function loadSave(): SaveData {
   try {
     const raw = localStorage.getItem(SAVE_KEY);

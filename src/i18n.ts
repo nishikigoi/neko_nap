@@ -36,6 +36,7 @@ const translations = {
     nextBedHint: "Try starting with this bed.",
     resetConfirm: "Start this level over?",
     complete: "Sweet dreams!",
+    finalComplete: "Perfect Nap!",
     nextLevel: "Next level",
   },
   ja: {
@@ -71,6 +72,7 @@ const translations = {
     nextBedHint: "この寝床から考えてみよう。",
     resetConfirm: "このステージを最初からやり直しますか？",
     complete: "みんな、すやすや",
+    finalComplete: "最高のおひるね！",
     nextLevel: "次のステージ",
   },
 } as const;

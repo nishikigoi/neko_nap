@@ -25,7 +25,7 @@ export default function CompletionOverlay({ isLast, onNext, onSelect, copy }: Co
             <span className="nap-journey__zzz nap-journey__zzz--three">z</span>
           </span>
         </div>
-        <h2 id="complete-title">{isLast ? "Perfect Nap!" : copy.complete}</h2>
+        <h2 id="complete-title">{isLast ? copy.finalComplete : copy.complete}</h2>
         <div className="completion__actions">
           {!isLast && <button className="completion__action completion__action--next" aria-label={copy.nextLevel} title={copy.nextLevel} onClick={onNext}>›</button>}
           <button className="completion__action" aria-label={copy.backToLevels} title={copy.backToLevels} onClick={onSelect}>⌂</button>

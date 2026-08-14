@@ -10,7 +10,7 @@ import { canCompleteLevel, solveLevel } from "../game/solver";
 import { catsFromMarks, createGameState, cycleBed, isComplete, undo } from "../game/state";
 import type { GameState } from "../game/types";
 import { levels } from "../levels/levels";
-import { defaultSave, emptyStats, loadSave, storeSave, type SaveData } from "../storage/progress";
+import { defaultSave, defaultSelectedLevel, emptyStats, loadSave, storeSave, type SaveData } from "../storage/progress";
 import { useCopy } from "../i18n";
 
 type Screen = "select" | "game";
@@ -27,6 +27,8 @@ export default function App() {
     const nextAfterCompleted = Math.max(1, ...loaded.completedLevels.map((number) => number + 1));
     return { ...loaded, unlockedLevel: Math.min(levels.length, Math.max(loaded.unlockedLevel, nextAfterCompleted)) };
   });
+  const [selectedLevel, setSelectedLevel] = useState(() =>
+    defaultSelectedLevel(save.completedLevels, save.unlockedLevel, levels.length));
   const [hintKey, setHintKey] = useState<string>();
   const [message, setMessage] = useState<string>();
   const complete = useMemo(() => isComplete(level, game.marks), [level, game.marks]);
@@ -72,6 +74,11 @@ export default function App() {
       const stats = current.stats[next.id] ?? emptyStats();
       return { ...current, stats: { ...current.stats, [next.id]: { ...stats, attempts: stats.attempts + 1 } } };
     });
+  };
+
+  const showLevelSelect = () => {
+    setSelectedLevel(defaultSelectedLevel(save.completedLevels, save.unlockedLevel, levels.length));
+    setScreen("select");
   };
 
   const handleBedClick = (key: string) => {
@@ -133,13 +140,23 @@ export default function App() {
   };
 
   if (screen === "select") {
-    return <HomeScreen onStart={() => beginLevel(Math.min(save.unlockedLevel, levels.length) - 1)} copy={copy} />;
+    return (
+      <HomeScreen
+        selectedLevel={selectedLevel}
+        unlockedLevel={save.unlockedLevel}
+        completedLevels={save.completedLevels}
+        levelCount={levels.length}
+        onSelectLevel={setSelectedLevel}
+        onStart={() => beginLevel(selectedLevel - 1)}
+        copy={copy}
+      />
+    );
   }
 
   return (
     <main className="game-screen">
       <header className="game-header">
-        <button className="icon-button" aria-label={copy.backToLevels} title={copy.backToLevels} onClick={() => setScreen("select")}>‹</button>
+        <button className="icon-button" aria-label={copy.backToLevels} title={copy.backToLevels} onClick={showLevelSelect}>‹</button>
         <span className="stage-number">{copy.level} {level.number}</span>
         <span className="cat-counter" aria-label={copy.catsSleeping(level.catCount)}><img className="cat-counter__icon" src={catFaceIcon} alt="" /> <b>{catsFromMarks(level, game.marks).length}</b> / {level.catCount}</span>
       </header>
@@ -151,7 +168,7 @@ export default function App() {
         <Controls copy={copy} canUndo={game.history.length > 0} onUndo={() => setGame(undo(game))} onReset={handleReset} onHint={handleHint} />
       </section>
       {complete && game.completedAt && (
-        <CompletionOverlay copy={copy} isLast={levelIndex === levels.length - 1} onNext={() => beginLevel(levelIndex + 1)} onSelect={() => setScreen("select")} />
+        <CompletionOverlay copy={copy} isLast={levelIndex === levels.length - 1} onNext={() => beginLevel(levelIndex + 1)} onSelect={showLevelSelect} />
       )}
     </main>
   );
