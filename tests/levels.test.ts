@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { allBeds } from "../src/game/board";
 import { evaluateDifficulty } from "../src/game/difficulty";
+import { evaluateFurnitureLayout } from "../src/game/furnitureLayout";
 import { conflicts } from "../src/game/lineOfSight";
 import { enumerateSolutions, solveLevel } from "../src/game/solver";
 import type { Level } from "../src/game/types";
@@ -24,6 +25,16 @@ function furnitureIsActive(level: Level, furnitureIndex: number) {
   };
   return beds.some((a, index) => beds.slice(index + 1).some((b) =>
     conflicts(level, a, b) !== conflicts(withoutFurniture, a, b)));
+}
+
+function furniturePositions(level: Level) {
+  return level.cells.flatMap((cell, index) => cell === "furniture"
+    ? [{ index, row: Math.floor(index / level.width), col: index % level.width }]
+    : []);
+}
+
+function positionBand(coordinate: number, length: number) {
+  return Math.min(2, Math.floor(((coordinate + .5) * 3) / length));
 }
 
 describe("ステージデータ", () => {
@@ -97,6 +108,51 @@ describe("ステージデータ", () => {
       expect(metrics.solutionCount).toBe(1);
       expect(metrics.wrongBeds.lateContradictionRatio).toBe(1);
       expect(metrics.uniqueSolution.peelingRounds).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("ステージ20から49は盤面の広さに応じた数の有効な家具を持つ", () => {
+    for (const level of levels.slice(19, 49)) {
+      const layout = evaluateFurnitureLayout(level);
+      const minimumFurniture = Math.max(4, Math.ceil(level.width * level.height / 32));
+      expect(layout.furnitureCount, `ステージ${level.number}`).toBeGreaterThanOrEqual(minimumFurniture);
+      expect(layout.activeFurnitureCount, `ステージ${level.number}`).toBe(layout.furnitureCount);
+      expect(layout.occupiedRowCount, `ステージ${level.number}`).toBeGreaterThanOrEqual(2);
+      expect(layout.occupiedColumnCount, `ステージ${level.number}`).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("ステージ20から49は同じ家具配置を使い回さない", () => {
+    const seen = new Map<string, number>();
+    for (const level of levels.slice(19, 49)) {
+      const key = `${level.width}x${level.height}:${furniturePositions(level).map(({ index }) => index).join(",")}`;
+      const duplicate = seen.get(key);
+      expect(duplicate, `ステージ${duplicate}と${level.number}の家具配置が同一です`).toBeUndefined();
+      seen.set(key, level.number);
+    }
+  });
+
+  it("ステージ20から49は連続する面でも家具の位置と分割方向が偏らない", () => {
+    const targets = levels.slice(19, 49);
+    const layouts = targets.map(evaluateFurnitureLayout);
+    const mixedDirectionCount = layouts.filter((layout) =>
+      layout.horizontalCutCount > 0 && layout.verticalCutCount > 0).length;
+    expect(mixedDirectionCount).toBeGreaterThanOrEqual(20);
+    expect(layouts.some((layout) => layout.maxHorizontalSegments >= 3)).toBe(true);
+
+    for (let start = 0; start <= targets.length - 5; start += 1) {
+      const window = targets.slice(start, start + 5);
+      const windowLayouts = layouts.slice(start, start + 5);
+      const rowBands = new Set(window.flatMap((level) =>
+        furniturePositions(level).map(({ row }) => positionBand(row, level.height))));
+      const columnBands = new Set(window.flatMap((level) =>
+        furniturePositions(level).map(({ col }) => positionBand(col, level.width))));
+      const label = `ステージ${window[0].number}〜${window.at(-1)!.number}`;
+
+      expect(rowBands.size, label).toBeGreaterThanOrEqual(2);
+      expect(columnBands.size, label).toBeGreaterThanOrEqual(2);
+      expect(windowLayouts.some(({ horizontalCutCount }) => horizontalCutCount > 0), label).toBe(true);
+      expect(windowLayouts.some(({ verticalCutCount }) => verticalCutCount > 0), label).toBe(true);
     }
   });
 

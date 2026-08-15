@@ -11,7 +11,7 @@
     "typecheck": "tsc -b",
     "validate-levels": "vitest run tests/levels.test.ts",
     "analyze-levels": "node --import tsx scripts/analyze-levels.ts",
-    "generate-ranked-levels": "node --import tsx scripts/generate-ranked-levels.ts"
+    "generate-ranked-levels": "node --import tsx scripts/generate-diverse-levels.ts"
   },
   "dependencies": {
     "react": "latest",

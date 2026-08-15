@@ -32,6 +32,28 @@ describe("人間向け難易度評価", () => {
     expect(metrics.solutionUsesSeparatedPair).toBe(true);
   });
 
+  it("家具が作る横・縦の分割と空間的な広がりを測定する", () => {
+    const metrics = evaluateDifficulty(makeLevel(["BFB", "F.F", "BFB"], 2));
+
+    expect(metrics.furnitureLayout).toMatchObject({
+      furnitureCount: 4,
+      activeFurnitureCount: 4,
+      horizontalCutCount: 2,
+      verticalCutCount: 2,
+      occupiedRowCount: 3,
+      occupiedColumnCount: 3,
+      maxHorizontalSegments: 2,
+      maxVerticalSegments: 2,
+    });
+  });
+
+  it("寝床間の視線を分割しない家具を警告する", () => {
+    const metrics = evaluateDifficulty(makeLevel(["F.", ".B"], 1));
+
+    expect(metrics.furnitureLayout.activeFurnitureCount).toBe(0);
+    expect(metrics.warnings).toContain("視線を分割しない家具があります");
+  });
+
   it("誤った寝床を選んだとき何匹まで置けるか測定する", () => {
     const metrics = evaluateDifficulty(makeLevel(["BFB", ".F.", "BBB"], 3));
     expect(metrics.wrongBeds.wrongBedCount).toBeGreaterThan(0);

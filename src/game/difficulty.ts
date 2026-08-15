@@ -1,5 +1,6 @@
 import { allBeds, positionKey } from "./board";
 import { blocksSight, conflicts } from "./lineOfSight";
+import { evaluateFurnitureLayout, type FurnitureLayoutMetrics } from "./furnitureLayout";
 import { enumerateSolutions, solveLevel } from "./solver";
 import type { Level, Position } from "./types";
 
@@ -39,6 +40,7 @@ export interface DifficultyMetrics {
   solutionRowProfileCount: number;
   solutionColumnProfileCount: number;
   solutionUsesSeparatedPair: boolean;
+  furnitureLayout: FurnitureLayoutMetrics;
   axisCapacity: {
     rowCapacities: number[];
     columnCapacities: number[];
@@ -281,6 +283,7 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
   );
   const rowCapacities = lineCapacities(level, "row");
   const columnCapacities = lineCapacities(level, "col");
+  const furnitureLayout = evaluateFurnitureLayout(level);
   const rowCapacitySlack = rowCapacities.reduce((sum, value) => sum + value, 0) - level.catCount;
   const columnCapacitySlack = columnCapacities.reduce((sum, value) => sum + value, 0) - level.catCount;
   const rowAllocationCount = allocationCount(rowCapacities, level.catCount);
@@ -293,6 +296,7 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
   if (level.solutionPolicy && solutionColumnProfiles.size < 2) warnings.push("正解間で列配分が変化しません");
   if (level.solutionPolicy && solutionRowProfiles.size < 2) warnings.push("正解間で行配分が変化しません");
   if (level.number >= 6 && !solutionUsesSeparatedPair) warnings.push("正解が家具区間を利用していません");
+  if (furnitureLayout.activeFurnitureCount < furnitureLayout.furnitureCount) warnings.push("視線を分割しない家具があります");
   if (level.number >= 10 && columnAllocationCount < 2) warnings.push("列ごとの猫数が開始時点で一意です");
   if (level.number >= 21 && rowAllocationCount < 2) warnings.push("行ごとの猫数が開始時点で一意です");
   if (level.number >= 10 && oneMoveBefore.columnProfileCount < 2) warnings.push("完成直前の列配分が一意です");
@@ -328,6 +332,7 @@ export function evaluateDifficulty(level: Level): DifficultyMetrics {
     solutionRowProfileCount: solutionRowProfiles.size,
     solutionColumnProfileCount: solutionColumnProfiles.size,
     solutionUsesSeparatedPair,
+    furnitureLayout,
     axisCapacity: {
       rowCapacities,
       columnCapacities,
